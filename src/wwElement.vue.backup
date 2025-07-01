@@ -1,16 +1,16 @@
 <template>
   <div 
     :class="tabsClasses"
-    :data-orientation="orientation"
+    :data-orientation="content.orientation"
   >
     <!-- Tabs List -->
     <div 
       :class="tabsListClasses"
       role="tablist"
-      :aria-orientation="orientation"
+      :aria-orientation="content.orientation"
     >
       <button
-        v-for="(tab, index) in tabs"
+        v-for="(tab, index) in content.tabs"
         :key="`tab-${index}`"
         :class="getTabTriggerClasses(index)"
         :aria-selected="activeTab === index"
@@ -28,7 +28,7 @@
 
     <!-- Tabs Content -->
     <div
-      v-for="(tab, index) in tabs"
+      v-for="(tab, index) in content.tabs"
       :key="`content-${index}`"
       :class="getTabContentClasses(index)"
       :id="`content-${index}`"
@@ -72,24 +72,24 @@ export default {
   },
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
-    const activeTab = ref(props.modelValue !== null ? props.modelValue : props.defaultTab)
+    const activeTab = ref(props.modelValue !== null ? props.modelValue : props.content.defaultTab)
 
     const tabsClasses = computed(() => cn(
       "w-full",
       {
-        "flex": props.orientation === 'vertical',
-        "flex-col": props.orientation === 'horizontal'
+        "flex": props.content.orientation === 'vertical',
+        "flex-col": props.content.orientation === 'horizontal'
       },
-      props.customClasses
+      props.content.customClasses
     ))
 
     const tabsListClasses = computed(() => cn(
       "inline-flex items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
       {
-        "h-10": props.size === 'default',
-        "h-8": props.size === 'sm',
-        "h-12": props.size === 'lg',
-        "flex-col h-auto w-auto": props.orientation === 'vertical'
+        "h-10": props.content.size === 'default',
+        "h-8": props.content.size === 'sm',
+        "h-12": props.content.size === 'lg',
+        "flex-col h-auto w-auto": props.content.orientation === 'vertical'
       }
     ))
 
@@ -99,7 +99,7 @@ export default {
         {
           "bg-background text-foreground shadow-sm": activeTab.value === index,
           "hover:bg-background/50": activeTab.value !== index,
-          "gap-2": props.tabs[index]?.icon
+          "gap-2": props.content.tabs[index]?.icon
         }
       )
     }
@@ -108,7 +108,7 @@ export default {
       return cn(
         "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         {
-          "ml-2 mt-0": props.orientation === 'vertical'
+          "ml-2 mt-0": props.content.orientation === 'vertical'
         }
       )
     }
@@ -117,17 +117,17 @@ export default {
       if (index !== activeTab.value) {
         activeTab.value = index
         emit('update:modelValue', index)
-        emit('change', { activeTab: index, tab: props.tabs[index] })
+        emit('change', { activeTab: index, tab: props.content.tabs[index] })
 
         // Execute Weweb workflow if defined
-        if (props.changeWorkflowId && typeof wwLib !== 'undefined') {
-          wwLib.executeWorkflow(props.changeWorkflowId)
+        if (props.content.changeWorkflowId && typeof wwLib !== 'undefined') {
+          wwLib.executeWorkflow(props.content.changeWorkflowId)
         }
       }
     }
 
     const handleKeyDown = (event, currentIndex) => {
-      const tabCount = props.tabs.length
+      const tabCount = props.content.tabs.length
       let newIndex = currentIndex
 
       switch (event.key) {
